@@ -69,7 +69,6 @@ namespace Godwit.HandleLoginAction
             services.AddHealthChecks()
                 .AddNpgSql(dbConn);
             services.AddCors();
-            services.AddHostedService<HostedService>();
             IConnectionMultiplexer redis = ConnectionMultiplexer.Connect(redisConn);
             services.AddSingleton(c => redis);
             services.Configure<DataProtectionTokenProviderOptions>(o => { o.TokenLifespan = TimeSpan.FromHours(24); });
