@@ -21,36 +21,42 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using StackExchange.Redis;
 
-namespace Godwit.HandleLoginAction {
-    public class Startup {
-        public Startup(IConfiguration configuration) {
+namespace Godwit.HandleLoginAction
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services)
+        {
             var dbConn =
                 $"Server={Configuration["DB_HOST"]};Database={Configuration["HASURA_DB"]};User Id={Configuration["DB_USERNAME"]};Password={Configuration["DB_PASSWORD"]};";
 
             var redisConn =
                 $"{Configuration["REDIS_HOST"] ?? "localhost:6379"},allowAdmin=true,password={Configuration["REDIS_PASSWORD"]}";
             var certificate = new X509Certificate2(
-                Path.Combine(Configuration["CERT_PATH"], Configuration["CERT_FILENAME"]),
+                Path.Combine(Configuration["CERT_PATH"] ?? "./", Configuration["CERT_FILENAME"] ?? "godwit.cert.pfx"),
                 Configuration["CERT_PASSWORD"], X509KeyStorageFlags.Exportable);
             services.AddControllers()
                 .AddFluentValidation(cfg => cfg.AutomaticValidationEnabled = false);
             services.AddSingleton<IValidator<ActionData>, ActionDataValidator>();
             services.AddSingleton<IJwtService, JwtService>();
             services
-                .AddDbContextPool<KetoDbContext>(opt => {
-                    opt.UseNpgsql(dbConn, builder => {
-                            builder.EnableRetryOnFailure(10, TimeSpan.FromMilliseconds(100), null!);
-                            builder.CommandTimeout(60);
-                            builder.UseAdminDatabase("postgres");
-                            builder.UseNodaTime();
-                        })
+                .AddDbContextPool<KetoDbContext>(opt =>
+                {
+                    opt.UseNpgsql(dbConn, builder =>
+                    {
+                        builder.EnableRetryOnFailure(10, TimeSpan.FromMilliseconds(100), null!);
+                        builder.CommandTimeout(60);
+                        builder.UseAdminDatabase("postgres");
+                        builder.UseNodaTime();
+                    })
                         .UseSnakeCaseNamingConvention();
                 });
             services
@@ -74,12 +80,15 @@ namespace Godwit.HandleLoginAction {
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-            app.UseCors(opt => {
+            app.UseCors(opt =>
+            {
                 opt.AllowAnyHeader();
                 opt.WithMethods("POST");
                 opt.AllowAnyOrigin();
@@ -89,7 +98,8 @@ namespace Godwit.HandleLoginAction {
             app.UseAuthorization();
             app.UseSerilogRequestLogging();
 
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/hc");
             });
