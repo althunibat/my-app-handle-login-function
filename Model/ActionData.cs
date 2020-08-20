@@ -5,5 +5,9 @@ namespace Godwit.HandleLoginAction.Model {
         [JsonPropertyName("input")] public LoginViewModel Input { get; set; }
 
         [JsonPropertyName("action")] public Action Action { get; set; }
+
+        [JsonPropertyName("session_variables")]
+        public Session Session { get; set; }
+
     }
 }

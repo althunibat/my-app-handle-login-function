@@ -14,11 +14,11 @@ namespace Godwit.HandleLoginAction {
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .WriteTo.Console(
                     outputTemplate:
-                    "[{Timestamp:HH:mm:ss} {Level:u3} ] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
+                    "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
                     theme: AnsiConsoleTheme.Code)
                 .CreateLogger();
 
